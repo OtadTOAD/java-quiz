@@ -1,6 +1,7 @@
 package ge.ibsu.demo.repositories;
 
 import ge.ibsu.demo.dto.projections.CustomerFullInfo;
+import ge.ibsu.demo.dto.projections.CustomerQuizInfo;
 import ge.ibsu.demo.dto.projections.PhoneInfo;
 import ge.ibsu.demo.entities.Customer;
 import org.springframework.data.domain.Page;
@@ -38,4 +39,17 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
             "From Customer c where concat(concat(c.firstName, ' '), c.lastName) like :searchText")
     Page<CustomerFullInfo> searchCustomerFullInfo(@Param("searchText") String searchText, Pageable pageable);
 
+
+    @Query(
+            value = "SELECT c.first_name AS firstName, " +
+                    "c.last_name AS lastName, " +
+                    "a.address AS address, " +
+                    "a.city AS city, " +
+                    "a.country AS country " +
+                    "FROM customer c " +
+                    "JOIN address a ON c.address_id = a.address_id",
+            countQuery = "SELECT count(*) FROM customer",
+            nativeQuery = true
+    )
+    Page<CustomerQuizInfo> findCustomerDetails(Pageable pageable);
 }

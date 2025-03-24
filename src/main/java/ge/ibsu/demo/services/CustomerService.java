@@ -2,11 +2,9 @@ package ge.ibsu.demo.services;
 
 import ge.ibsu.demo.dto.AddCustomer;
 import ge.ibsu.demo.dto.Paging;
+import ge.ibsu.demo.dto.QuizDTO;
 import ge.ibsu.demo.dto.SearchCustomer;
-import ge.ibsu.demo.dto.projections.CustomerFullInfo;
-import ge.ibsu.demo.dto.projections.CustomerFullName;
-import ge.ibsu.demo.dto.projections.CustomerPhoneInfo;
-import ge.ibsu.demo.dto.projections.PhoneInfo;
+import ge.ibsu.demo.dto.projections.*;
 import ge.ibsu.demo.entities.Address;
 import ge.ibsu.demo.entities.Customer;
 import ge.ibsu.demo.repositories.AddressRepository;
@@ -77,6 +75,18 @@ public class CustomerService {
         Pageable pageable = PageRequest.of(paging.getPage() - 1, paging.getSize(), Sort.by("customer_id").ascending());
         String searchText = "%" + searchCustomer.getSearchText() + "%";
         return customerRepository.searchCustomersViaNativeQuery(searchText, pageable);
+    }
+
+    public Page<QuizDTO> getCustomerDetails(Paging paging) {
+        Pageable pageable = PageRequest.of(paging.getPage() - 1, paging.getSize(), Sort.by("customer_id").ascending());
+        Page<CustomerQuizInfo> projectionPage = customerRepository.findCustomerDetails(pageable);
+        return projectionPage.map(proj -> new QuizDTO(
+                proj.getFirstName(),
+                proj.getLastName(),
+                proj.getAddress(),
+                proj.getCity(),
+                proj.getCountry()
+        ));
     }
 
     @Transactional
